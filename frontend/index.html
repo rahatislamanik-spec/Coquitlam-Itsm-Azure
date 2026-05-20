@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IT Support — Coquitlam College</title>
+  <meta name="description" content="Submit an IT service request to Coquitlam College IT Support." />
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:       #1F4E79;
+      --blue-mid:   #2E75B6;
+      --blue-light: #D6E4F0;
+      --teal:       #0F6E56;
+      --teal-light: #E1F5EE;
+      --bg:         #F0F4F8;
+      --card:       #FFFFFF;
+      --text:       #1A1A1A;
+      --muted:      #6B7280;
+      --border:     #E0E8F0;
+      --red:        #991B1B;
+      --red-bg:     #FEE2E2;
+      --green:      #166534;
+      --green-bg:   #DCFCE7;
+      --radius:     14px;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, var(--blue) 0%, #14375A 100%);
+      color: #fff;
+      padding: 36px 24px 32px;
+      text-align: center;
+    }
+    .header-badge {
+      display: inline-block;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    header h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+    header p  { font-size: 14px; opacity: .85; }
+
+    /* ── Layout ── */
+    main {
+      max-width: 980px;
+      margin: 32px auto;
+      padding: 0 20px 60px;
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 760px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      box-shadow: 0 4px 24px rgba(31,78,121,.06);
+    }
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 6px;
+    }
+    .card-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    /* ── Form ── */
+    .form-row { margin-bottom: 16px; }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--blue);
+      margin-bottom: 6px;
+    }
+    label .req { color: #C0392B; margin-left: 2px; }
+    input, select, textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      background: #fff;
+      transition: border-color .15s;
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--blue-mid);
+      box-shadow: 0 0 0 3px rgba(46,117,182,.12);
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    select { cursor: pointer; }
+
+    /* Priority visual cues */
+    select#priority option[value="P1"] { color: #991B1B; font-weight: 700; }
+    select#priority option[value="P2"] { color: #92400E; font-weight: 600; }
+
+    /* ── Submit button ── */
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      margin-top: 6px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+      letter-spacing: .02em;
+    }
+    .btn-submit:hover:not(:disabled) { background: #14375A; transform: translateY(-1px); }
+    .btn-submit:disabled { background: #9CA3AF; cursor: not-allowed; transform: none; }
+
+    /* ── Status messages ── */
+    .status {
+      display: none;
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+    .status.success {
+      display: block;
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid #86EFAC;
+    }
+    .status.error {
+      display: block;
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid #FECACA;
+    }
+    .ticket-ref {
+      display: inline-block;
+      background: #fff;
+      border: 1px solid #86EFAC;
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-family: monospace;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    /* ── Sidebar: Event flow ── */
+    .flow-step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .flow-step:last-child { border-bottom: none; }
+    .step-num {
+      min-width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--blue-light);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-body { }
+    .step-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 2px;
+    }
+    .step-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+    .sidebar-note {
+      margin-top: 18px;
+      padding: 12px 14px;
+      background: var(--teal-light);
+      border-left: 3px solid var(--teal);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--teal);
+      line-height: 1.5;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 0 20px 32px;
+    }
+    footer a { color: var(--blue-mid); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">IT Support Portal</div>
+  <h1>Coquitlam College — IT Service Desk</h1>
+  <p>Serverless Azure ITSM Platform · All requests are tracked and confirmed automatically</p>
+</header>
+
+<main>
+
+  <!-- ── Form card ── -->
+  <section class="card">
+    <div class="card-title">Submit an IT Service Request</div>
+    <div class="card-sub">
+      Fill in the form below. You will receive an email confirmation with your ticket reference number immediately after submission.
+    </div>
+
+    <form id="ticketForm" novalidate>
+
+      <div class="form-row">
+        <label for="name">Full Name <span class="req">*</span></label>
+        <input id="name" name="name" type="text" required placeholder="e.g. Zhang Wei" autocomplete="name" />
+      </div>
+
+      <div class="form-row">
+        <label for="email">Email Address <span class="req">*</span></label>
+        <input id="email" name="email" type="email" required placeholder="student@coquitlamcollege.com" autocomplete="email" />
+      </div>
+
+      <div class="form-row">
+        <label for="program">Program / Department <span class="req">*</span></label>
+        <select id="program" name="program" required>
+          <option value="">Select your program</option>
+          <option>University Transfer Program</option>
+          <option>Senior Secondary Program</option>
+          <option>English Studies Program</option>
+          <option>Faculty / Staff</option>
+          <option>Administration</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="category">Request Category <span class="req">*</span></label>
+        <select id="category" name="category" required>
+          <option value="">Select a category</option>
+          <option>Password Reset / Account Unlock</option>
+          <option>Student Portal Access</option>
+          <option>Software Access / Licensing</option>
+          <option>Wi-Fi / Network Issue</option>
+          <option>Device Support (Laptop / Desktop)</option>
+          <option>Email / Microsoft 365</option>
+          <option>Printing / Scanning</option>
+          <option>Classroom Technology</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="priority">Priority <span class="req">*</span></label>
+        <select id="priority" name="priority" required>
+          <option value="">Select priority level</option>
+          <option value="P1">P1 — Critical (exam / registration deadline affected)</option>
+          <option value="P2">P2 — High (significant impact on coursework)</option>
+          <option value="P3">P3 — Standard (general issue, no immediate deadline)</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="description">Description <span class="req">*</span></label>
+        <textarea id="description" name="description" required
+          placeholder="Please describe the issue. Include any error messages you see and what you were trying to do."></textarea>
+      </div>
+
+      <button class="btn-submit" id="submitBtn" type="submit">Submit IT Request</button>
+
+      <div id="statusBox" class="status" role="alert" aria-live="polite"></div>
+
+    </form>
+  </section>
+
+  <!-- ── Sidebar ── -->
+  <aside class="card">
+    <div class="card-title">What Happens Next?</div>
+    <div class="card-sub">Your request flows through a serverless Azure pipeline automatically.</div>
+
+    <div class="flow-step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-name">Azure Functions validates</div>
+        <div class="step-desc">Your request is checked and assigned a unique ticket ID within seconds.</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-name">Event Grid routes by priority</div>
+        <div class="step-desc">P1 and P2 tickets go to the priority queue automatically. P3 enters the standard queue.</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-name">Service Bus queues the ticket</div>
+        <div class="step-desc">Your request is held safely in a dead-letter queue if any processing step fails — nothing is lost.</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-name">Cosmos DB stores the record</div>
+        <div class="step-desc">Your ticket is written with a full audit trail — searchable by IT staff at any time.</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-name">You receive a confirmation</div>
+        <div class="step-desc">An email with your ticket reference and SLA response time is sent immediately.</div>
+      </div>
+    </div>
+
+    <div class="sidebar-note">
+      📊 All requests are monitored in real time via Azure Application Insights. P1 tickets that exceed the SLA window trigger automatic escalation to IT leadership.
+    </div>
+  </aside>
+
+</main>
+
+<footer>
+  <p>
+    Coquitlam College ITSM Platform · WIL Project 2026 · Built on Microsoft Azure ·
+    <a href="https://github.com/rahatislamanik-spec/Coquitlam-Itsm-Azure" target="_blank">GitHub</a>
+  </p>
+</footer>
+
+<script>
+  /**
+   * API Configuration
+   * ─────────────────
+   * In local development: http://localhost:7071/api/submit-ticket
+   * After deployment:     update FUNCTION_API_URL to your Azure Function URL
+   *
+   * To find your URL after deployment:
+   *   Azure Portal → Function App → Functions → http-trigger → Get function URL
+   */
+  const FUNCTION_API_URL = window.FUNCTION_API_URL || "http://localhost:7071/api/submit-ticket";
+
+  const form      = document.getElementById("ticketForm");
+  const statusBox = document.getElementById("statusBox");
+  const submitBtn = document.getElementById("submitBtn");
+
+  function setStatus(type, html) {
+    statusBox.className = `status ${type}`;
+    statusBox.innerHTML = html;
+    statusBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function clearStatus() {
+    statusBox.className = "status";
+    statusBox.innerHTML = "";
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearStatus();
+
+    // Client-side validation
+    const requiredIds = ["name", "email", "program", "category", "priority", "description"];
+    const missing = requiredIds.filter((id) => !document.getElementById(id).value.trim());
+    if (missing.length > 0) {
+      setStatus("error", "Please fill in all required fields before submitting.");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting…";
+
+    const payload = {
+      name:        document.getElementById("name").value.trim(),
+      email:       document.getElementById("email").value.trim(),
+      program:     document.getElementById("program").value,
+      category:    document.getElementById("category").value,
+      priority:    document.getElementById("priority").value,
+      description: document.getElementById("description").value.trim(),
+      submittedAt: new Date().toISOString()
+    };
+
+    try {
+      const response = await fetch(FUNCTION_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || `Server returned ${response.status}`);
+      }
+
+      setStatus("success",
+        `✅ Request submitted successfully.<br>
+         Ticket reference: <span class="ticket-ref">${result.ticketId}</span><br>
+         <small style="font-weight:400;margin-top:4px;display:block">
+           Expected response: <strong>${result.estimatedResponseTime}</strong>. A confirmation email has been sent to ${payload.email}.
+         </small>`
+      );
+
+      form.reset();
+
+    } catch (error) {
+      setStatus("error",
+        `❌ Submission failed: ${error.message}<br>
+         <small style="font-weight:400;margin-top:4px;display:block">
+           Please try again or contact IT support directly at support@coquitlamcollege.com
+         </small>`
+      );
+
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit IT Request";
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architecture — Coquitlam College ITSM Platform</title>
+<meta name="description" content="Serverless Azure IT Service Request Automation Platform — Interactive Architecture Diagram">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  :root{
+    --bg:#f8f9fa;
+    --bg2:#ffffff;
+    --bg3:#f1f3f5;
+    --text:#1a1a1a;
+    --text2:#555;
+    --text3:#888;
+    --border:#e0e0e0;
+    --border2:#ccc;
+  }
+
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#0f0f0f;
+      --bg2:#1a1a1a;
+      --bg3:#242424;
+      --text:#e8e8e8;
+      --text2:#aaa;
+      --text3:#666;
+      --border:#2a2a2a;
+      --border2:#3a3a3a;
+    }
+  }
+
+  body{
+    font-family:'DM Sans',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+
+  /* ── Header ── */
+  header{
+    border-bottom:1px solid var(--border);
+    background:var(--bg2);
+    padding:20px 40px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .header-left{}
+  .header-badge{
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:#185FA5;
+    background:#E6F1FB;
+    padding:3px 10px;
+    border-radius:20px;
+    margin-bottom:6px;
+    display:inline-block;
+  }
+  @media(prefers-color-scheme:dark){
+    .header-badge{background:#042C53;color:#85B7EB}
+  }
+  header h1{font-size:20px;font-weight:600;color:var(--text);line-height:1.2}
+  header p{font-size:12px;color:var(--text3);margin-top:3px;font-family:'IBM Plex Mono',monospace}
+  .header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .nav-link{
+    font-size:12px;
+    font-weight:500;
+    padding:6px 14px;
+    border-radius:6px;
+    border:1px solid var(--border2);
+    background:var(--bg2);
+    color:var(--text2);
+    text-decoration:none;
+    transition:all .15s;
+  }
+  .nav-link:hover{background:var(--bg3);color:var(--text)}
+  .nav-link.primary{background:#185FA5;border-color:#185FA5;color:#fff}
+  .nav-link.primary:hover{background:#0C447C}
+
+  /* ── Main layout ── */
+  main{max-width:1100px;margin:0 auto;padding:40px 24px 80px}
+
+  /* ── Intro ── */
+  .intro{margin-bottom:36px;padding:24px;background:var(--bg2);border-radius:12px;border:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+  @media(max-width:600px){.intro{grid-template-columns:1fr}}
+  .intro-stat{}
+  .intro-num{font-size:28px;font-weight:600;color:#185FA5}
+  @media(prefers-color-scheme:dark){.intro-num{color:#85B7EB}}
+  .intro-label{font-size:12px;color:var(--text3);margin-top:2px}
+
+  /* ── Diagram ── */
+  .diagram-wrap{background:var(--bg2);border-radius:16px;border:1px solid var(--border);padding:32px 28px}
+  .diagram-title{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:24px;display:flex;align-items:center;gap:8px}
+  .diagram-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+  .grid{display:flex;flex-direction:column;gap:8px}
+
+  /* Layer rows */
+  .layer-row{border-radius:12px;padding:16px 18px;border:1px solid transparent;position:relative;transition:all .2s}
+  .layer-row.l1{border-color:#B5D4F4;background:#E6F1FB}
+  .layer-row.l2{border-color:#9FE1CB;background:#E1F5EE}
+  .layer-row.l3{border-color:#CECBF6;background:#EEEDFE}
+  .layer-row.l4{border-color:#FAC775;background:#FAEEDA}
+  .layer-row.l5{border-color:#C0DD97;background:#EAF3DE}
+  @media(prefers-color-scheme:dark){
+    .layer-row.l1{border-color:#0C447C;background:#042C5318}
+    .layer-row.l2{border-color:#085041;background:#04342C18}
+    .layer-row.l3{border-color:#3C3489;background:#26215C18}
+    .layer-row.l4{border-color:#854F0B;background:#41240218}
+    .layer-row.l5{border-color:#3B6D11;background:#17340418}
+  }
+
+  .layer-name{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+  .l1 .layer-name{color:#185FA5}
+  .l2 .layer-name{color:#0F6E56}
+  .l3 .layer-name{color:#534AB7}
+  .l4 .layer-name{color:#BA7517}
+  .l5 .layer-name{color:#3B6D11}
+
+  .services{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+
+  /* Service cards */
+  .svc{
+    border-radius:10px;
+    padding:10px 14px;
+    cursor:pointer;
+    transition:all .18s;
+    border:1px solid transparent;
+    min-width:130px;
+    position:relative;
+  }
+  .svc:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+  .svc.active{box-shadow:0 0 0 2.5px #185FA5}
+  .svc-icon{font-size:18px;margin-bottom:5px}
+  .svc-name{font-size:12px;font-weight:600;line-height:1.2}
+  .svc-sub{font-size:10px;opacity:.7;margin-top:2px;line-height:1.3;font-family:'IBM Plex Mono',monospace}
+
+  .svc.blue{background:#B5D4F4;border-color:#378ADD;color:#042C53}
+  .svc.teal{background:#9FE1CB;border-color:#1D9E75;color:#04342C}
+  .svc.purple{background:#CECBF6;border-color:#7F77DD;color:#26215C}
+  .svc.amber{background:#FAC775;border-color:#EF9F27;color:#412402}
+  .svc.green{background:#C0DD97;border-color:#639922;color:#173404}
+  .svc.gray{background:#F1EFE8;border-color:#B4B2A9;color:#2C2C2A}
+  @media(prefers-color-scheme:dark){
+    .svc.blue{background:#0C447C;border-color:#378ADD;color:#B5D4F4}
+    .svc.teal{background:#085041;border-color:#1D9E75;color:#9FE1CB}
+    .svc.purple{background:#3C3489;border-color:#7F77DD;color:#CECBF6}
+    .svc.amber{background:#633806;border-color:#EF9F27;color:#FAC775}
+    .svc.green{background:#27500A;border-color:#639922;color:#C0DD97}
+    .svc.gray{background:#2C2C2A;border-color:#5F5E5A;color:#D3D1C7}
+  }
+
+  /* Arrows */
+  .arrow-row{display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 0}
+  .arrow-line{width:1.5px;height:18px;background:var(--border2)}
+  .arrow-label{font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;background:var(--bg);padding:2px 10px;border-radius:20px;border:1px solid var(--border)}
+
+  /* Bottom 3-col grid */
+  .bottom-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  @media(max-width:640px){.bottom-grid{grid-template-columns:1fr}}
+
+  /* Info panel */
+  .info-panel{
+    margin-top:20px;
+    border-radius:12px;
+    padding:18px 20px;
+    background:var(--bg2);
+    border:1px solid var(--border);
+    min-height:90px;
+    transition:all .25s;
+  }
+  .info-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+  .info-title{font-size:14px;font-weight:600}
+  .info-phase{font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:500;padding:3px 10px;border-radius:20px;white-space:nowrap}
+  .info-phase.p1{background:#E6F1FB;color:#185FA5}
+  .info-phase.p2{background:#E1F5EE;color:#0F6E56}
+  .info-phase.p3{background:#EEEDFE;color:#534AB7}
+  .info-phase.p4{background:#FAEEDA;color:#BA7517}
+  .info-phase.p5{background:#EAF3DE;color:#3B6D11}
+  .info-why{font-size:12px;color:var(--text2);line-height:1.7}
+
+  /* Journey */
+  .journey-wrap{margin-top:28px}
+  .section-label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+  .journey-steps{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:14px}
+  .j-node{font-size:11px;font-weight:500;padding:6px 12px;border-radius:20px;white-space:nowrap;border:1px solid transparent;transition:all .2s}
+  .j-arr{font-size:11px;color:var(--text3);padding:0 2px}
+  .j-node.j1{background:#E6F1FB;color:#185FA5;border-color:#B5D4F4}
+  .j-node.j2{background:#E1F5EE;color:#0F6E56;border-color:#9FE1CB}
+  .j-node.j3{background:#EEEDFE;color:#534AB7;border-color:#CECBF6}
+  .j-node.j4{background:#FAEEDA;color:#BA7517;border-color:#FAC775}
+  .j-node.j5{background:#EAF3DE;color:#3B6D11;border-color:#C0DD97}
+  .j-node.active-step{
+    transform:scale(1.06);
+    box-shadow:0 0 0 2.5px currentColor;
+    animation:jpulse .7s ease-in-out infinite;
+  }
+  @keyframes jpulse{0%,100%{opacity:1}50%{opacity:.75}}
+
+  .anim-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .btn{
+    font-size:12px;
+    font-weight:500;
+    padding:7px 18px;
+    border-radius:8px;
+    border:1px solid var(--border2);
+    background:var(--bg2);
+    color:var(--text);
+    cursor:pointer;
+    font-family:'DM Sans',sans-serif;
+    transition:all .15s;
+  }
+  .btn:hover{background:var(--bg3)}
+  .btn.running{background:#185FA5;border-color:#185FA5;color:#fff}
+  .btn.running:hover{background:#0C447C}
+  .anim-status{font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace}
+
+  /* Services table */
+  .services-table{margin-top:36px;background:var(--bg2);border-radius:12px;border:1px solid var(--border);overflow:hidden}
+  .services-table table{width:100%;border-collapse:collapse;font-size:12px}
+  .services-table th{padding:10px 16px;text-align:left;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border)}
+  .services-table td{padding:10px 16px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  .services-table tr:last-child td{border-bottom:none}
+  .services-table tr:hover td{background:var(--bg3)}
+  .td-service{font-weight:600;color:var(--text);white-space:nowrap}
+  .td-phase{font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+  .phase-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  .ph1{background:#378ADD}.ph2{background:#1D9E75}.ph3{background:#7F77DD}.ph4{background:#EF9F27}.ph5{background:#639922}
+
+  /* Footer */
+  footer{border-top:1px solid var(--border);padding:24px 40px;background:var(--bg2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:60px}
+  footer p{font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace}
+  footer a{color:#185FA5;text-decoration:none}
+  footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="header-badge">WIL Project 2026</div>
+    <h1>Coquitlam College — ITSM Platform</h1>
+    <p>Serverless Azure Architecture · Interactive Diagram · rahatislamanik-spec</p>
+  </div>
+  <div class="header-right">
+    <a href="https://github.com/rahatislamanik-spec/Coquitlam-Itsm-Azure" class="nav-link" target="_blank">← GitHub Repo</a>
+    <a href="https://rahatislamanik-spec.github.io/Coquitlam-Itsm-Azure/" class="nav-link" target="_blank">Case Study</a>
+    <a href="https://rahatislamanik-spec.github.io/Coquitlam-Itsm-Azure/docs/STAR-presentation" class="nav-link primary" target="_blank">STAR Presentation</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- Intro stats -->
+  <div class="intro">
+    <div class="intro-stat">
+      <div class="intro-num">4,000+</div>
+      <div class="intro-label">Students served across 3 programs</div>
+    </div>
+    <div class="intro-stat">
+      <div class="intro-num">80+</div>
+      <div class="intro-label">Countries — international student body</div>
+    </div>
+    <div class="intro-stat">
+      <div class="intro-num">14</div>
+      <div class="intro-label">Azure services across 5 phases</div>
+    </div>
+  </div>
+
+  <!-- Architecture diagram -->
+  <div class="diagram-wrap">
+    <div class="diagram-title">System Architecture</div>
+
+    <div class="grid">
+
+      <!-- Layer 1 -->
+      <div class="layer-row l1">
+        <div class="layer-name">01 · Presentation Layer</div>
+        <div class="services">
+          <div class="svc blue" onclick="showInfo('swa')" id="svc-swa">
+            <div class="svc-icon">🌐</div>
+            <div class="svc-name">Static Web Apps</div>
+            <div class="svc-sub">Student portal</div>
+          </div>
+          <div class="svc blue" onclick="showInfo('func-http')" id="svc-func-http">
+            <div class="svc-icon">⚡</div>
+            <div class="svc-name">Functions — HTTP</div>
+            <div class="svc-sub">Request intake</div>
+          </div>
+          <div class="svc gray" onclick="showInfo('kv')" id="svc-kv">
+            <div class="svc-icon">🔐</div>
+            <div class="svc-name">Key Vault</div>
+            <div class="svc-sub">+ Managed Identity</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow-row">
+        <div class="arrow-line"></div>
+        <div class="arrow-label">HTTP POST → event published to Event Grid</div>
+        <div class="arrow-line"></div>
+      </div>
+
+      <!-- Layer 2 -->
+      <div class="layer-row l2">
+        <div class="layer-name">02 · Routing & Processing Layer</div>
+        <div class="services">
+          <div class="svc teal" onclick="showInfo('eg')" id="svc-eg">
+            <div class="svc-icon">🔀</div>
+            <div class="svc-name">Event Grid</div>
+            <div class="svc-sub">Priority routing</div>
+          </div>
+          <div class="svc teal" onclick="showInfo('sb')" id="svc-sb">
+            <div class="svc-icon">📬</div>
+            <div class="svc-name">Service Bus</div>
+            <div class="svc-sub">Dead-letter queue</div>
+          </div>
+          <div class="svc teal" onclick="showInfo('func-q')" id="svc-func-q">
+            <div class="svc-icon">⚙️</div>
+            <div class="svc-name">Functions — Queue</div>
+            <div class="svc-sub">Backend processor</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow-row">
+        <div class="arrow-line"></div>
+        <div class="arrow-label">processed ticket → write + notify + monitor</div>
+        <div class="arrow-line"></div>
+      </div>
+
+      <!-- Layers 3-5 -->
+      <div class="bottom-grid">
+
+        <div class="layer-row l3">
+          <div class="layer-name">03 · Data Layer</div>
+          <div class="services" style="flex-direction:column">
+            <div class="svc purple" onclick="showInfo('cosmos')" id="svc-cosmos">
+              <div class="svc-icon">🗄️</div>
+              <div class="svc-name">Cosmos DB</div>
+              <div class="svc-sub">Ticket records — NoSQL</div>
+            </div>
+            <div class="svc purple" onclick="showInfo('blob')" id="svc-blob">
+              <div class="svc-icon">📎</div>
+              <div class="svc-name">Blob Storage</div>
+              <div class="svc-sub">File attachments</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="layer-row l4">
+          <div class="layer-name">04 · Notification Layer</div>
+          <div class="services" style="flex-direction:column">
+            <div class="svc amber" onclick="showInfo('acs')" id="svc-acs">
+              <div class="svc-icon">📧</div>
+              <div class="svc-name">Comm. Services</div>
+              <div class="svc-sub">Email confirmations</div>
+            </div>
+            <div class="svc amber" onclick="showInfo('logic')" id="svc-logic">
+              <div class="svc-icon">🔔</div>
+              <div class="svc-name">Logic Apps</div>
+              <div class="svc-sub">SLA escalation</div>
+            </div>
+            <div class="svc amber" onclick="showInfo('pa')" id="svc-pa">
+              <div class="svc-icon">⚡</div>
+              <div class="svc-name">Power Automate</div>
+              <div class="svc-sub">Teams alerts</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="layer-row l5">
+          <div class="layer-name">05 · Monitoring Layer</div>
+          <div class="services" style="flex-direction:column">
+            <div class="svc green" onclick="showInfo('ai')" id="svc-ai">
+              <div class="svc-icon">📊</div>
+              <div class="svc-name">App Insights</div>
+              <div class="svc-sub">Performance + errors</div>
+            </div>
+            <div class="svc green" onclick="showInfo('law')" id="svc-law">
+              <div class="svc-icon">📋</div>
+              <div class="svc-name">Log Analytics</div>
+              <div class="svc-sub">KQL queries</div>
+            </div>
+            <div class="svc green" onclick="showInfo('mon')" id="svc-mon">
+              <div class="svc-icon">🚨</div>
+              <div class="svc-name">Azure Monitor</div>
+              <div class="svc-sub">Alert rules</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Info panel -->
+    <div class="info-panel" id="info-panel">
+      <div class="info-header">
+        <div class="info-title" id="info-title">Click any service to see why it was chosen</div>
+        <span class="info-phase" id="info-phase" style="display:none"></span>
+      </div>
+      <div class="info-why" id="info-why">Every service in this architecture was selected against three criteria: does it eliminate manual work? does it fail safely? does it fit a private institution's budget? Hover and click to explore each decision.</div>
+    </div>
+
+  </div>
+
+  <!-- Ticket Journey -->
+  <div class="journey-wrap">
+    <div class="section-label">Ticket Journey — trace a live request through the system</div>
+    <div class="journey-steps" id="journey-steps">
+      <div class="j-node j1" id="jn1">Student submits</div>
+      <div class="j-arr">→</div>
+      <div class="j-node j1" id="jn2">Functions validates</div>
+      <div class="j-arr">→</div>
+      <div class="j-node j2" id="jn3">Event Grid routes</div>
+      <div class="j-arr">→</div>
+      <div class="j-node j2" id="jn4">Service Bus queues</div>
+      <div class="j-arr">→</div>
+      <div class="j-node j3" id="jn5">Cosmos DB stores</div>
+      <div class="j-arr">→</div>
+      <div class="j-node j4" id="jn6">Student notified</div>
+      <div class="j-arr">→</div>
+      <div class="j-node j5" id="jn7">Monitor logs ✓</div>
+    </div>
+    <div class="anim-controls">
+      <button class="btn" id="anim-btn" onclick="toggleJourney()">▶ Animate ticket journey</button>
+      <span class="anim-status" id="anim-status"></span>
+    </div>
+  </div>
+
+  <!-- Services reference table -->
+  <div class="services-table" style="margin-top:36px">
+    <table>
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Phase</th>
+          <th>Purpose</th>
+          <th>Design Decision</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="td-service">Azure Static Web Apps</td><td class="td-phase"><span class="phase-dot ph1"></span>Phase 1</td><td>Student portal</td><td>CDN-backed — fast for international students regardless of timezone</td></tr>
+        <tr><td class="td-service">Azure Functions (HTTP)</td><td class="td-phase"><span class="phase-dot ph1"></span>Phase 1</td><td>Request intake</td><td>Serverless — pay per execution, scales during registration peaks</td></tr>
+        <tr><td class="td-service">Key Vault + Managed Identity</td><td class="td-phase"><span class="phase-dot ph1"></span>All phases</td><td>Secret management</td><td>Zero hardcoded credentials — enterprise security standard</td></tr>
+        <tr><td class="td-service">Azure Event Grid</td><td class="td-phase"><span class="phase-dot ph2"></span>Phase 2</td><td>Event routing</td><td>Decouples intake from processing — loose coupling, independent failure</td></tr>
+        <tr><td class="td-service">Azure Service Bus</td><td class="td-phase"><span class="phase-dot ph2"></span>Phase 2</td><td>Queue processing</td><td>Dead-letter queue — no ticket silently lost. Chosen over Storage Queue</td></tr>
+        <tr><td class="td-service">Azure Functions (Queue)</td><td class="td-phase"><span class="phase-dot ph2"></span>Phase 2</td><td>Backend processor</td><td>Triggered only when work exists — true serverless efficiency</td></tr>
+        <tr><td class="td-service">Azure Cosmos DB</td><td class="td-phase"><span class="phase-dot ph3"></span>Phase 3</td><td>Ticket records</td><td>Rich queries + serverless billing. Chosen over Table Storage</td></tr>
+        <tr><td class="td-service">Azure Blob Storage</td><td class="td-phase"><span class="phase-dot ph3"></span>Phase 3</td><td>File attachments</td><td>Cheap, durable, globally replicated — full audit trail forever</td></tr>
+        <tr><td class="td-service">Azure Communication Svc</td><td class="td-phase"><span class="phase-dot ph4"></span>Phase 4</td><td>Email confirmations</td><td>Instant automated acknowledgement — no student left in silence</td></tr>
+        <tr><td class="td-service">Azure Logic Apps</td><td class="td-phase"><span class="phase-dot ph4"></span>Phase 4</td><td>SLA escalation</td><td>Auto-escalates breached tickets — zero manual monitoring required</td></tr>
+        <tr><td class="td-service">Power Automate</td><td class="td-phase"><span class="phase-dot ph4"></span>Phase 4</td><td>Teams notifications</td><td>Meets staff where they already work — native M365 integration</td></tr>
+        <tr><td class="td-service">Application Insights</td><td class="td-phase"><span class="phase-dot ph5"></span>Phase 5</td><td>Performance tracking</td><td>Custom events: TicketSubmitted, SLABreached, EscalationTriggered</td></tr>
+        <tr><td class="td-service">Log Analytics Workspace</td><td class="td-phase"><span class="phase-dot ph5"></span>Phase 5</td><td>Log aggregation</td><td>KQL queries surface weekly patterns and SLA compliance reports</td></tr>
+        <tr><td class="td-service">Azure Monitor</td><td class="td-phase"><span class="phase-dot ph5"></span>Phase 5</td><td>Alert rules</td><td>Self-monitoring — detects failures before any human notices</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<footer>
+  <p>Coquitlam College ITSM Platform · WIL Project 2026 · Built on Microsoft Azure</p>
+  <p><a href="https://github.com/rahatislamanik-spec/Coquitlam-Itsm-Azure" target="_blank">github.com/rahatislamanik-spec/Coquitlam-Itsm-Azure</a></p>
+</footer>
+
+<script>
+const data={
+  swa:{title:'Azure Static Web Apps',why:'Globally distributed CDN — a student in Shanghai gets sub-second load times. Zero server maintenance, no VM to patch, no downtime. Native GitHub Actions integration for CI/CD. Free tier covers all traffic at Coquitlam\'s scale.',phase:'Phase 1 — Get Submitted',pc:'p1'},
+  'func-http':{title:'Azure Functions — HTTP Trigger',why:'Serverless means pay per execution, not per hour. The HTTP trigger validates the payload, rejects malformed requests, and publishes to Event Grid — all in one stateless function. Scales automatically during registration peaks with no configuration.',phase:'Phase 1 — Get Submitted',pc:'p1'},
+  kv:{title:'Key Vault + Managed Identity',why:'Zero hardcoded credentials anywhere in the platform. The Function accesses Key Vault through Managed Identity — no API key in code, no connection string in config files. This is the enterprise security standard. Without this, one leaked secret compromises the entire system.',phase:'Phase 1 — Security (all phases)',pc:'p1'},
+  eg:{title:'Azure Event Grid',why:'Event Grid decouples the intake layer from the processing layer. The HTTP Function publishes an event and its job is done — it doesn\'t need to know what happens next. This loose coupling means each layer can fail independently. A processing error cannot break the intake layer.',phase:'Phase 2 — Get Routed',pc:'p2'},
+  sb:{title:'Azure Service Bus',why:'Chosen over Azure Storage Queue because Service Bus has a dead-letter queue — failed messages are captured, not silently lost. A student\'s Priority 1 ticket can never disappear. Message locking prevents duplicate processing. This is what enterprise systems actually use in production.',phase:'Phase 2 — Get Routed',pc:'p2'},
+  'func-q':{title:'Azure Functions — Queue Trigger',why:'Pulls messages from Service Bus and orchestrates: write to Cosmos DB, upload attachment to Blob, trigger notification. Queue-triggered means it only runs when there is work to do. If there are no tickets, this function costs nothing. True serverless efficiency.',phase:'Phase 2 — Get Routed',pc:'p2'},
+  cosmos:{title:'Azure Cosmos DB',why:'Chosen over Table Storage (the original plan) because Cosmos DB supports rich queries — filter by student, date, category, status. Serverless billing: no provisioned throughput costs at Coquitlam\'s scale. 99.999% SLA is appropriate for deadline-sensitive student requests.',phase:'Phase 3 — Get Stored',pc:'p3'},
+  blob:{title:'Azure Blob Storage',why:'File attachments (screenshots, error photos) stored by ticket ID with SAS token access controlled through Key Vault. Blobs are cheap, durable, and globally replicated. The IT coordinator can retrieve any attachment years later. This is the audit trail.',phase:'Phase 3 — Get Stored',pc:'p3'},
+  acs:{title:'Azure Communication Services',why:'The moment a ticket is processed, an automated email fires to the student with a reference number and SLA expectation. No human involvement required. For international students submitting tickets at 2am with no confirmation, this is the difference between trust and abandonment.',phase:'Phase 4 — Get Notified',pc:'p4'},
+  logic:{title:'Azure Logic Apps',why:'Monitors Cosmos DB for SLA breaches. When a Priority 1 ticket goes unresolved past its window, Logic Apps fires escalation notifications to the IT coordinator and department head automatically. No one needs to monitor a dashboard — the system acts on its own.',phase:'Phase 4 — Get Notified',pc:'p4'},
+  pa:{title:'Power Automate',why:'Routes Priority 1 and Priority 2 notifications to the coordinator\'s Teams channel in real time. Staff are notified in the tool they already have open — no new interface to monitor. This is the M365 integration that makes the platform native to Coquitlam\'s Microsoft environment.',phase:'Phase 4 — Get Notified',pc:'p4'},
+  ai:{title:'Application Insights',why:'Every Function is instrumented with custom events: TicketSubmitted, TicketProcessed, SLABreached, EscalationTriggered. Leadership sees ticket volume, error rates, and latency in real time. The platform reports on itself — no manual log review required by anyone.',phase:'Phase 5 — Get Monitored',pc:'p5'},
+  law:{title:'Log Analytics Workspace',why:'All logs aggregate into one workspace — Function execution, Event Grid delivery, Service Bus activity, Logic App runs. KQL queries surface weekly patterns: which category dominates, which program files the most tickets, when peak volume hits. This is what leadership actually needs.',phase:'Phase 5 — Get Monitored',pc:'p5'},
+  mon:{title:'Azure Monitor + Alert Rules',why:'Fires when: Function error rate exceeds 5%, dead-letter queue depth exceeds 10, SLA breaches cluster, or queues go silent for 2+ hours. The system detects its own failures before any human notices. Self-monitoring is essential for a platform with no dedicated operations staff post-deployment.',phase:'Phase 5 — Get Monitored',pc:'p5'}
+};
+
+function showInfo(id){
+  const d=data[id];if(!d)return;
+  document.querySelectorAll('.svc').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('svc-'+id);
+  if(el)el.classList.add('active');
+  document.getElementById('info-title').textContent=d.title;
+  document.getElementById('info-why').textContent=d.why;
+  const ph=document.getElementById('info-phase');
+  ph.textContent=d.phase;ph.className='info-phase '+d.pc;ph.style.display='inline-block';
+}
+
+const steps=['jn1','jn2','jn3','jn4','jn5','jn6','jn7'];
+const labels=[
+  'Student submits request via web portal...',
+  'Azure Functions validates and publishes event...',
+  'Event Grid routes by priority level...',
+  'Service Bus queues the ticket safely...',
+  'Cosmos DB records with full audit trail...',
+  'Student receives automated email confirmation...',
+  'Azure Monitor logs the completed ticket ✓'
+];
+let animInterval=null,currentStep=0,running=false;
+
+function toggleJourney(){
+  if(running){
+    clearInterval(animInterval);running=false;currentStep=0;
+    steps.forEach(s=>document.getElementById(s).classList.remove('active-step'));
+    document.getElementById('anim-btn').textContent='▶ Animate ticket journey';
+    document.getElementById('anim-btn').classList.remove('running');
+    document.getElementById('anim-status').textContent='';
+  } else {
+    running=true;currentStep=0;
+    document.getElementById('anim-btn').textContent='■ Stop animation';
+    document.getElementById('anim-btn').classList.add('running');
+    runStep();
+    animInterval=setInterval(()=>{
+      currentStep++;
+      if(currentStep>=steps.length){currentStep=0;steps.forEach(s=>document.getElementById(s).classList.remove('active-step'));}
+      runStep();
+    },950);
+  }
+}
+
+function runStep(){
+  steps.forEach(s=>document.getElementById(s).classList.remove('active-step'));
+  document.getElementById(steps[currentStep]).classList.add('active-step');
+  document.getElementById('anim-status').textContent=labels[currentStep];
+}
+</script>
+</body>
+</html>

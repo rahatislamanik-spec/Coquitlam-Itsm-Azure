@@ -1,0 +1,19 @@
+{
+  "name": "coquitlam-itsm-azure-functions",
+  "version": "1.0.0",
+  "description": "Azure Functions for Coquitlam College ITSM WIL Project 2026",
+  "main": "index.js",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"No automated tests configured yet\""
+  },
+  "dependencies": {
+    "@azure/service-bus": "^7.9.5",
+    "@azure/cosmos": "^4.1.1",
+    "@azure/identity": "^4.4.1",
+    "applicationinsights": "^2.9.6"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

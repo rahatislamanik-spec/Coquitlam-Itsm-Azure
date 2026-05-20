@@ -1,0 +1,12 @@
+{
+  "bindings": [
+    {
+      "name": "message",
+      "type": "serviceBusTrigger",
+      "direction": "in",
+      "queueName": "%PROCESS_QUEUE_NAME%",
+      "connection": "SERVICE_BUS_CONNECTION_STRING",
+      "deadLetterQueueName": "priority-queue/$deadletterqueue"
+    }
+  ]
+}
