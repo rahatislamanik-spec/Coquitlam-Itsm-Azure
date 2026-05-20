@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>From Inbox to Automated | Coquitlam College ITSM Azure Platform</title>
+  <meta name="description" content="Designing a serverless Azure IT service request platform for a George Brown College WIL project." />
+
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg-soft: #0d1b2e;
+      --card: #111f34;
+      --card-2: #0f253d;
+      --text: #eef5ff;
+      --muted: #9fb3c8;
+      --line: rgba(255,255,255,0.12);
+      --blue: #5aa7ff;
+      --cyan: #5eead4;
+      --green: #7ee787;
+      --yellow: #facc15;
+      --orange: #fb923c;
+      --shadow: 0 24px 60px rgba(0,0,0,0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(90,167,255,0.22), transparent 34%),
+        radial-gradient(circle at top right, rgba(94,234,212,0.14), transparent 32%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 72px 0 44px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 56px;
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .nav {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .nav a {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 34px;
+      align-items: center;
+    }
+
+    @media (max-width: 880px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border: 1px solid rgba(94,234,212,0.35);
+      background: rgba(94,234,212,0.08);
+      color: var(--cyan);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(38px, 6vw, 72px);
+      line-height: 0.98;
+      letter-spacing: -0.065em;
+    }
+
+    .subtitle {
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 20px;
+      max-width: 680px;
+    }
+
+    .quote {
+      margin-top: 28px;
+      padding: 18px 22px;
+      border-left: 4px solid var(--cyan);
+      background: rgba(255,255,255,0.055);
+      border-radius: 14px;
+      color: #dbeafe;
+      font-size: 18px;
+      font-style: italic;
+    }
+
+    .hero-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 26px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .metric {
+      padding: 18px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 32px;
+      color: white;
+      letter-spacing: -0.04em;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .notice {
+      margin: 22px 0 0;
+      padding: 16px 18px;
+      border-radius: 16px;
+      background: rgba(251,146,60,0.12);
+      border: 1px solid rgba(251,146,60,0.35);
+      color: #fed7aa;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 26px;
+    }
+
+    .badge {
+      padding: 8px 12px;
+      background: rgba(90,167,255,0.12);
+      border: 1px solid rgba(90,167,255,0.28);
+      border-radius: 999px;
+      color: #bfdbfe;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    section {
+      padding: 34px 0;
+    }
+
+    .section-title {
+      font-size: 34px;
+      letter-spacing: -0.045em;
+      margin: 0 0 16px;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      max-width: 850px;
+      margin: 0 0 24px;
+      font-size: 17px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    @media (max-width: 800px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: rgba(17,31,52,0.84);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.18);
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
+
+    .card p {
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .list {
+      margin: 16px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    .list li {
+      margin-bottom: 8px;
+    }
+
+    .status-table, .decision-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(17,31,52,0.75);
+    }
+
+    th, td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: white;
+      background: rgba(255,255,255,0.07);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    td {
+      color: var(--muted);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status-complete {
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .status-progress {
+      color: var(--yellow);
+      font-weight: 800;
+    }
+
+    .status-planned {
+      color: var(--orange);
+      font-weight: 800;
+    }
+
+    .architecture {
+      background: rgba(255,255,255,0.045);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 28px;
+      overflow-x: auto;
+    }
+
+    .flow {
+      display: grid;
+      gap: 12px;
+      min-width: 700px;
+    }
+
+    .flow-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      place-items: center;
+    }
+
+    .node {
+      width: min(560px, 100%);
+      padding: 18px 22px;
+      border-radius: 18px;
+      text-align: center;
+      border: 1px solid rgba(90,167,255,0.3);
+      background: linear-gradient(135deg, rgba(90,167,255,0.16), rgba(94,234,212,0.08));
+    }
+
+    .node strong {
+      display: block;
+      font-size: 18px;
+      color: white;
+    }
+
+    .node span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .arrow {
+      color: var(--cyan);
+      font-size: 26px;
+      text-align: center;
+    }
+
+    .multi-node {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: min(760px, 100%);
+    }
+
+    .mini {
+      padding: 15px;
+      border-radius: 16px;
+      text-align: center;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .mini strong {
+      display: block;
+      color: white;
+    }
+
+    .mini span {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .phase-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 1050px) {
+      .phase-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .phase-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .phase {
+      border-radius: 22px;
+      padding: 20px;
+      background: rgba(17,31,52,0.84);
+      border: 1px solid var(--line);
+    }
+
+    .phase-num {
+      color: var(--cyan);
+      font-weight: 900;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .phase h3 {
+      margin: 10px 0 8px;
+      font-size: 19px;
+      letter-spacing: -0.03em;
+    }
+
+    .phase p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .tech {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tech span {
+      padding: 10px 13px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--line);
+      color: #dbeafe;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    footer {
+      padding: 42px 0 56px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      margin-top: 36px;
+    }
+
+    .footer-grid {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <div class="topbar">
+        <div class="brand">Coquitlam-Itsm-Azure</div>
+        <nav class="nav">
+          <a href="#status">Status</a>
+          <a href="#situation">Situation</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#phases">Phases</a>
+          <a href="#outcome">Outcome</a>
+        </nav>
+      </div>
+
+      <div class="hero">
+        <div>
+          <div class="eyebrow">WIL Project 2026 · Early Design Phase</div>
+          <h1>From Inbox to Automated</h1>
+          <p class="subtitle">
+            Designing a serverless Azure IT service request platform for a 3+ month George Brown College WIL initiative.
+          </p>
+
+          <div class="quote">
+            “Coquitlam College had 4,000 students, 80 countries, and one IT inbox. We’re designing the cloud platform intended to modernize it.”
+          </div>
+
+          <div class="badges">
+            <span class="badge">Microsoft Azure</span>
+            <span class="badge">Azure Functions</span>
+            <span class="badge">Cosmos DB</span>
+            <span class="badge">Power Automate</span>
+            <span class="badge">Architecture & Development Phase</span>
+          </div>
+
+          <div class="notice">
+            ⚠️ This project is currently in the early architecture, planning, and phased development stage. Implementation and live Azure deployment will continue over the next several months.
+          </div>
+        </div>
+
+        <aside class="hero-card">
+          <div class="metric-grid">
+            <div class="metric">
+              <strong>4,000+</strong>
+              <span>students represented in the project scenario</span>
+            </div>
+            <div class="metric">
+              <strong>80+</strong>
+              <span>countries represented in the student body scenario</span>
+            </div>
+            <div class="metric">
+              <strong>5</strong>
+              <span>planned Azure implementation phases</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="status">
+      <div class="container">
+        <h2 class="section-title">Build Status</h2>
+        <p class="section-sub">
+          Current project state for the WIL build cycle. The platform is being planned and developed in phases rather than presented as a completed production deployment.
+        </p>
+
+        <table class="status-table">
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Status</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Project narrative & documentation</td><td class="status-complete">✅ Complete</td><td>Initial case study and planning completed</td></tr>
+            <tr><td>Architecture diagram</td><td class="status-progress">🟡 In refinement</td><td>Initial architecture and workflow planning completed</td></tr>
+            <tr><td>Student portal</td><td class="status-progress">🟡 Prototype phase</td><td>Early UI and intake workflow design</td></tr>
+            <tr><td>HTTP trigger function</td><td class="status-progress">🟡 In development</td><td>Validation and routing logic being planned</td></tr>
+            <tr><td>Queue processor function</td><td class="status-progress">🟡 In development</td><td>Cosmos DB write and audit logic planned</td></tr>
+            <tr><td>PowerShell deployment script</td><td class="status-progress">🟡 Draft phase</td><td>Infrastructure scripting in progress</td></tr>
+            <tr><td>Notification and escalation layer</td><td class="status-planned">⏳ Planned</td><td>Azure Communication Services, Logic Apps, Power Automate</td></tr>
+            <tr><td>Full Azure deployment & testing</td><td class="status-planned">⏳ Not started</td><td>Scheduled for upcoming build phases</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="situation">
+      <div class="container grid-2">
+        <div class="card">
+          <h2 class="section-title">The Situation</h2>
+          <p>
+            As Coquitlam College transitioned operations from Coquitlam to East Vancouver, the IT support workflow remained heavily dependent on manual processes.
+          </p>
+          <p style="margin-top:14px;">
+            Students from multiple programs and backgrounds may experience the same support model: send an email and wait. The project scenario explores how that process can be redesigned using cloud-native automation.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Operational Gaps</h3>
+          <ul class="list">
+            <li>No structured intake process</li>
+            <li>No SLA tracking</li>
+            <li>No escalation workflow</li>
+            <li>No centralized visibility</li>
+            <li>No automation layer</li>
+            <li>No operational dashboard</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <div class="container">
+        <h2 class="section-title">Architecture Overview</h2>
+        <p class="section-sub">
+          Planned event-driven Azure architecture for automated request intake, routing, storage, notification, and monitoring.
+        </p>
+
+        <div class="architecture">
+          <div class="flow">
+            <div class="flow-row">
+              <div class="node">
+                <strong>Student Web Portal</strong>
+                <span>Azure Static Web Apps</span>
+              </div>
+            </div>
+            <div class="arrow">↓ HTTP POST</div>
+
+            <div class="flow-row">
+              <div class="node">
+                <strong>Azure Functions — HTTP Trigger</strong>
+                <span>Input validation + Key Vault via Managed Identity</span>
+              </div>
+            </div>
+            <div class="arrow">↓ Publishes Event</div>
+
+            <div class="flow-row">
+              <div class="node">
+                <strong>Azure Event Grid</strong>
+                <span>Event routing and priority classification</span>
+              </div>
+            </div>
+            <div class="arrow">↓</div>
+
+            <div class="flow-row">
+              <div class="node">
+                <strong>Azure Service Bus Queue</strong>
+                <span>Asynchronous processing + dead-letter queue</span>
+              </div>
+            </div>
+            <div class="arrow">↓ Queue Trigger</div>
+
+            <div class="flow-row">
+              <div class="node">
+                <strong>Azure Functions — Queue Processor</strong>
+                <span>Backend processing layer</span>
+              </div>
+            </div>
+
+            <div class="flow-row">
+              <div class="multi-node">
+                <div class="mini"><strong>Cosmos DB</strong><span>Request records</span></div>
+                <div class="mini"><strong>Blob Storage</strong><span>Attachments</span></div>
+                <div class="mini"><strong>Communication Services</strong><span>Email confirmations</span></div>
+              </div>
+            </div>
+
+            <div class="arrow">↓ Monitoring + escalation</div>
+
+            <div class="flow-row">
+              <div class="node">
+                <strong>Azure Monitor + Application Insights + Log Analytics</strong>
+                <span>Dashboard, telemetry, SLA tracking, alerts</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="phases">
+      <div class="container">
+        <h2 class="section-title">The Five Planned Phases</h2>
+        <p class="section-sub">
+          Each phase owns one clear responsibility layer so the system can be built, tested, and explained professionally.
+        </p>
+
+        <div class="phase-grid">
+          <div class="phase">
+            <div class="phase-num">Phase 1</div>
+            <h3>Get Submitted</h3>
+            <p>Student portal and Azure Functions intake layer.</p>
+          </div>
+
+          <div class="phase">
+            <div class="phase-num">Phase 2</div>
+            <h3>Get Routed</h3>
+            <p>Event Grid and Service Bus routing workflows.</p>
+          </div>
+
+          <div class="phase">
+            <div class="phase-num">Phase 3</div>
+            <h3>Get Stored</h3>
+            <p>Cosmos DB records, Blob attachments, audit trail.</p>
+          </div>
+
+          <div class="phase">
+            <div class="phase-num">Phase 4</div>
+            <h3>Get Notified</h3>
+            <p>Email confirmations, SLA escalation, Teams alerts.</p>
+          </div>
+
+          <div class="phase">
+            <div class="phase-num">Phase 5</div>
+            <h3>Get Monitored</h3>
+            <p>Application Insights, Log Analytics, Azure Monitor.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <h2 class="section-title">Key Engineering Decisions</h2>
+
+        <table class="decision-table">
+          <thead>
+            <tr>
+              <th>Decision</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Azure Service Bus instead of Storage Queue</td><td>Supports enterprise messaging patterns and dead-letter queues.</td></tr>
+            <tr><td>Cosmos DB instead of traditional SQL</td><td>Flexible NoSQL schema and scalable serverless design.</td></tr>
+            <tr><td>Managed Identity over hardcoded credentials</td><td>Eliminates credential exposure.</td></tr>
+            <tr><td>Event-driven architecture</td><td>Supports scalable independent workflows.</td></tr>
+            <tr><td>Azure Functions</td><td>Reduces infrastructure management overhead.</td></tr>
+            <tr><td>Application Insights + Log Analytics</td><td>Centralized monitoring and observability.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="outcome">
+      <div class="container grid-2">
+        <div class="card">
+          <h2 class="section-title">Expected Outcome</h2>
+          <p>
+            The completed platform is intended to replace a reactive, human-dependent, email-based process with a scalable serverless system.
+          </p>
+          <ul class="list">
+            <li>Accept requests 24/7 in a structured format</li>
+            <li>Route requests automatically by priority</li>
+            <li>Store records with audit trails and SLA deadlines</li>
+            <li>Notify students and staff automatically</li>
+            <li>Provide centralized monitoring and operational visibility</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Current Project Focus</h3>
+          <ul class="list">
+            <li>Architecture planning</li>
+            <li>Azure service mapping</li>
+            <li>Frontend prototyping</li>
+            <li>Deployment scripting</li>
+            <li>Phased implementation design</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <h2 class="section-title">Technologies</h2>
+        <div class="tech">
+          <span>Node.js</span>
+          <span>Microsoft Azure</span>
+          <span>Azure Functions</span>
+          <span>Azure Service Bus</span>
+          <span>Azure Event Grid</span>
+          <span>Cosmos DB</span>
+          <span>Azure Monitor</span>
+          <span>Application Insights</span>
+          <span>PowerShell</span>
+          <span>GitHub Actions</span>
+          <span>Serverless Architecture</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <strong>WIL Project 2026</strong><br />
+        Cloud-Native Serverless Architecture · Microsoft Azure · George Brown College
+      </div>
+      <div>
+        <a href="https://github.com/rahatislamanik-spec" target="_blank">GitHub</a>
+        &nbsp;·&nbsp;
+        <a href="https://www.linkedin.com/in/rahatislamanik/" target="_blank">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
