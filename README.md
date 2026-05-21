@@ -11,8 +11,7 @@
 
 ---
 
-> ⚠️ This project is currently in the early architecture, planning, and phased development stage as part of a 3+ month George Brown College WIL initiative.
-
+> ⚠️ This project is currently in the early architecture, planning, and phased development stage as part of a multi-phase 3+ month enterprise simulation initiative.
 ---
 
 ## 🏗️ Build Status
