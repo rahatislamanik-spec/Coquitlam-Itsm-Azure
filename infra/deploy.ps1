@@ -292,10 +292,10 @@ az monitor metrics alert create `
   --name "alert-function-errors" `
   --resource-group $ResourceGroup `
   --scopes $AppInsightsId `
-  --condition "avg requests/failed > 5" `
+  --condition "count requests/failed > 5" `
   --window-size 15m `
   --evaluation-frequency 5m `
-  --description "Function error rate exceeded 5% threshold" | Out-Null
+  --description "Function failed request count exceeded 5 in 15-minute window" | Out-Null
 
 Write-Host "       Alert rules configured" -ForegroundColor Green
 
